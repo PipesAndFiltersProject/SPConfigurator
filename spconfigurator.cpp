@@ -1,4 +1,5 @@
 #include <nlohmann/json.hpp>
+#include <g3log/g3log.hpp>
 
 #include "spconfigurator.h"
 #include "SPConfiguratorListener.h"
@@ -6,31 +7,42 @@
 SPConfigurator::SPConfigurator(SPConfiguratorListener & l, int port, int castPort)
    : listener(l), broadcasterSocket(io_service), listeningSocket(io_service, boost::asio::ip::udp::endpoint(boost::asio::ip::udp::v4(), port)),
      broadcastPort(castPort), isRunning(false), isSearching(false) {
-
+   LOG(INFO) << "Created SPConfigurator.";
 }
 
 SPConfigurator::~SPConfigurator() {
+   LOG(INFO) << "Destroying SPConfigurator.";
    if (isSearching) {
+      LOG(INFO) << "Search was ongoing, stopping it.";
       stopSearchingForNodes();
    }
    if (isRunning) {
+      LOG(INFO) << "Is running, calling deinit.";
       deinit();
    }
+   LOG(INFO) << "Exiting ~SPConfigurator.";
 }
 
 void SPConfigurator::init() {
+   LOG(INFO) << "SPConfigurator::init";
+   isRunning = true;
    ioServiceThread = std::thread([this] {
       return io_service.run();
    });
    doReceive();
+   LOG(INFO) << "SPConfigurator::init done";
 }
 
 void SPConfigurator::deinit() {
-   if (!io_service.stopped()) {
-      io_service.stop();
+   LOG(INFO) << "SPConfigurator::deinit";
+   if (isRunning) {
+      LOG(INFO) << "io_service not stopped, stopping...";
       isRunning = false;
+      io_service.stop();
+      LOG(INFO) << "io_service stopped, waiting for his thread...";
       ioServiceThread.join();
    }
+   LOG(INFO) << "SPConfigurator::deinit done";
 }
 
 bool SPConfigurator::isSearchingNodes() const {
@@ -38,39 +50,47 @@ bool SPConfigurator::isSearchingNodes() const {
 }
 
 void SPConfigurator::startSearchingForNodes() {
-   boost::system::error_code error;
 
-   if (!error && !isSearching)
+   if (!isSearching)
    {
-      broadcasterSocket.open(boost::asio::ip::udp::v4(), error);
-      broadcasterSocket.set_option(boost::asio::ip::udp::socket::reuse_address(true));
-      broadcasterSocket.set_option(boost::asio::socket_base::broadcast(true));
-      isSearching = true;
+      LOG(INFO) << "Starting to search for nodes using broadcast socket";
 
       searchThread = std::thread([this] {
          try {
+            boost::system::error_code error;
+            isSearching = true;
+            broadcasterSocket.open(boost::asio::ip::udp::v4(), error);
+            broadcasterSocket.set_option(boost::asio::ip::udp::socket::reuse_address(true));
+            broadcasterSocket.set_option(boost::asio::socket_base::broadcast(true));
             boost::asio::ip::udp::endpoint senderEndpoint(boost::asio::ip::address_v4::broadcast(), broadcastPort);
             nlohmann::json object;
+            object["test"] = "testing";
             searchMessage = object.dump();
             while (isSearching) {
-               std::this_thread::sleep_for(std::chrono::milliseconds(3000));
+               LOG(INFO) << "Sending searchmessage: " << searchMessage;
                broadcasterSocket.send_to(boost::asio::buffer(searchMessage), senderEndpoint);
+               std::this_thread::sleep_for(std::chrono::milliseconds(3000));
             }
          } catch (const std::exception & e) {
-            isSearching = false;
+            // isSearching = false;
+            LOG(INFO) << "Exception in search thread: " << e.what();
             listener.handleError(e.what());
          }
       });
+   } else {
+      LOG(INFO) << "Already isSearching, no search started.";
    }
 }
 
 void SPConfigurator::stopSearchingForNodes() {
    if (isSearching) {
       try {
+         LOG(INFO) << "Stopping searching.";
          isSearching = false;
          boost::system::error_code error;
          broadcasterSocket.close(error);
          searchThread.detach();
+         LOG(INFO) << "Searching stopped.";
       } catch (const std::exception & e) {
          listener.handleError(e.what());
       }
@@ -83,6 +103,7 @@ void SPConfigurator::doReceive() {
                               {
                                  if (!ec && bytes_recvd > 0) {
                                     std::string arrived(data_, bytes_recvd);
+                                    LOG(INFO) << "Got data: " << arrived;
                                     listener.handleIncomingData(arrived);
                                  } else {
                                     doReceive();

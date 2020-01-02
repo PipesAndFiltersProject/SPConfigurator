@@ -29,12 +29,12 @@
      <rect>
       <x>0</x>
       <y>420</y>
-      <width>112</width>
+      <width>141</width>
       <height>32</height>
      </rect>
     </property>
     <property name="text">
-     <string>&amp;Search</string>
+     <string>&amp;Start searching</string>
     </property>
    </widget>
   </widget>

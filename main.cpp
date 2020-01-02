@@ -11,10 +11,9 @@ int main(int argc, char *argv[])
 {
      std::unique_ptr<g3::LogWorker> logworker{ g3::LogWorker::createLogWorker() };
      QString logDir = QDir::homePath() + "/StudentPassing/Logs";
-     auto defaultHandler = logworker->addDefaultLogger(argv[0], logDir.toStdString());
+     auto defaultHandler = logworker->addDefaultLogger("SPConfigurator", logDir.toStdString());
      g3::initializeLogging(logworker.get());
      LOG(INFO) << "Launching Qt GUI Configurator app for StudentPassing";
-     LOG(INFO) << "Startup parameter is: " << argv[0];
      QApplication a(argc, argv);
      MainWindow w;
      w.show();
