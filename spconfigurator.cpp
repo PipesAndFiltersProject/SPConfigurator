@@ -57,15 +57,18 @@ void SPConfigurator::startSearchingForNodes() {
 
       searchThread = std::thread([this] {
          try {
+            const nlohmann::json searchJSON = R"(
+                                           { "package" : "123e4567-e89b-12d3-a456-426655440000",
+                                             "type" : "configuration",
+                                             "payload" : "read"
+                                           })"_json;
             boost::system::error_code error;
             isSearching = true;
             broadcasterSocket.open(boost::asio::ip::udp::v4(), error);
             broadcasterSocket.set_option(boost::asio::ip::udp::socket::reuse_address(true));
             broadcasterSocket.set_option(boost::asio::socket_base::broadcast(true));
             boost::asio::ip::udp::endpoint senderEndpoint(boost::asio::ip::address_v4::broadcast(), broadcastPort);
-            nlohmann::json object;
-            object["test"] = "testing";
-            searchMessage = object.dump();
+            searchMessage = searchJSON.dump();
             while (isSearching) {
                LOG(INFO) << "Sending searchmessage: " << searchMessage;
                broadcasterSocket.send_to(boost::asio::buffer(searchMessage), senderEndpoint);
