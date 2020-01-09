@@ -57,6 +57,7 @@ void SPConfigurator::startSearchingForNodes() {
 
       searchThread = std::thread([this] {
          try {
+            // TODO: create package with search payload so that uuid changes when new search is started with new uuid.
             const nlohmann::json searchJSON = R"(
                                            { "package" : "123e4567-e89b-12d3-a456-426655440000",
                                              "type" : "configuration",
@@ -100,6 +101,7 @@ void SPConfigurator::stopSearchingForNodes() {
    }
 }
 
+// TODO: actually call doReceive to receive responses. Store them for each node (by node name), std::map perhaps?
 void SPConfigurator::doReceive() {
    listeningSocket.async_receive_from(boost::asio::buffer(data_, max_length), sender_endpoint_,
                               [this](boost::system::error_code ec, std::size_t bytes_recvd)
