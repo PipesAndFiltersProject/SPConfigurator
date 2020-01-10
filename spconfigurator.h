@@ -1,16 +1,21 @@
-#ifndef SPCONFIGURATOR_H
-#define SPCONFIGURATOR_H
+#pragma once
 
 #include <string>
 #include <boost/bind.hpp>
 #include <boost/asio.hpp>
 
+#include "NodeView.h"
+
 class SPConfiguratorListener;
 
+/**
+ A class to send configuration read request messages and handling the responses from
+ ProcessorNodes. See project readme for JSON message documentation and additional information.
+ */
 class SPConfigurator
 {
 public:
-   SPConfigurator(SPConfiguratorListener & l, int port, int castPort);
+   SPConfigurator(SPConfiguratorListener & l, int broadcastPort);
 
    ~SPConfigurator();
 
@@ -24,12 +29,13 @@ public:
 private:
    void doReceive();
 
+   void handleIncomingConfig(std::string nodeAddress, std::string configData);
+   
 private:
    SPConfiguratorListener & listener;
    boost::asio::io_service io_service;
    std::thread ioServiceThread;
    boost::asio::ip::udp::socket broadcasterSocket;
-   boost::asio::ip::udp::socket listeningSocket;
    int broadcastPort;
    std::string searchMessage;
    bool isRunning;
@@ -40,6 +46,6 @@ private:
    enum { max_length = 4096 };
    char data_[max_length];
 
+   std:vector<NodeView> nodes;
 };
 
-#endif // SPCONFIGURATOR_H

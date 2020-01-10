@@ -6,7 +6,7 @@
 class SPConfiguratorListener {
 public:
    virtual ~SPConfiguratorListener() { /*empty*/ }
-   virtual void handleIncomingData(std::string data) = 0;
+   virtual void handleIncomingData(std::string message) = 0;
    virtual void handleError(std::string error) = 0;
 };
 

@@ -14,6 +14,8 @@ set(SPConfigurator_SRCS
     SPConfigurator.cpp
     SPConfigurator.h
     SPConfiguratorListener.h
+    NodeView.h
+    NodeView.cpp
     main.cpp
 )
 

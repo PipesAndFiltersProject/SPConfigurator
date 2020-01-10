@@ -1,12 +1,12 @@
 #include <nlohmann/json.hpp>
 #include <g3log/g3log.hpp>
 
-#include "spconfigurator.h"
+#include "SPConfigurator.h"
 #include "SPConfiguratorListener.h"
 
-SPConfigurator::SPConfigurator(SPConfiguratorListener & l, int port, int castPort)
-   : listener(l), broadcasterSocket(io_service), listeningSocket(io_service, boost::asio::ip::udp::endpoint(boost::asio::ip::udp::v4(), port)),
-     broadcastPort(castPort), isRunning(false), isSearching(false) {
+SPConfigurator::SPConfigurator(SPConfiguratorListener & l, int broadcastPort)
+   : listener(l), broadcasterSocket(io_service),
+     this->broadcastPort(broadcastPort), isRunning(false), isSearching(false) {
    LOG(INFO) << "Created SPConfigurator.";
 }
 
@@ -109,8 +109,12 @@ void SPConfigurator::doReceive() {
                                  if (!ec && bytes_recvd > 0) {
                                     std::string arrived(data_, bytes_recvd);
                                     LOG(INFO) << "Got data: " << arrived;
-                                    listener.handleIncomingData(arrived);
+                                    handleIncomingConfig(sender_endpoint_.address().to_string(), arrived);
                               }
                               doReceive();
                               });
+}
+
+void SPConfigurator::handleIncomingConfig(std::string nodeAddress, std::string configData) {
+   listener.handleIncomingData(sender_endpoint_.address().to_string(), arrived);
 }

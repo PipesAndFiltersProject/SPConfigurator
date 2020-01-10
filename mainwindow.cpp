@@ -10,7 +10,7 @@ MainWindow::MainWindow(QWidget *parent) :
 {
    LOG(INFO) << "Configurator main window setup starts";
    ui->setupUi(this);
-   configurator = new SPConfigurator(*this, 10000, 10001);
+   configurator = new SPConfigurator(*this, 10001);
    configurator->init();
    LOG(INFO) << "Configurator main window created";
 }
@@ -25,8 +25,8 @@ MainWindow::~MainWindow()
    LOG(INFO) << "MainWindow deleted";
 }
 
-void MainWindow::handleIncomingData(std::string data) {
-   QString logEntry = QString::fromStdString(data);
+void MainWindow::handleIncomingData(std::string message) {
+   QString logEntry = QString::fromStdString(message);
    ui->LogView->appendPlainText(logEntry);
 }
 
