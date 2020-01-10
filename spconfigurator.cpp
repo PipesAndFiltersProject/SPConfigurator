@@ -73,7 +73,7 @@ void SPConfigurator::startSearchingForNodes() {
             while (isSearching) {
                LOG(INFO) << "Sending searchmessage: " << searchMessage;
                broadcasterSocket.send_to(boost::asio::buffer(searchMessage), senderEndpoint);
-               std::this_thread::sleep_for(std::chrono::milliseconds(3000));
+               std::this_thread::sleep_for(std::chrono::milliseconds(5000));
             }
          } catch (const std::exception & e) {
             // isSearching = false;
@@ -103,15 +103,14 @@ void SPConfigurator::stopSearchingForNodes() {
 
 // TODO: actually call doReceive to receive responses. Store them for each node (by node name), std::map perhaps?
 void SPConfigurator::doReceive() {
-   listeningSocket.async_receive_from(boost::asio::buffer(data_, max_length), sender_endpoint_,
+   broadcasterSocket.async_receive_from(boost::asio::buffer(data_, max_length), sender_endpoint_,
                               [this](boost::system::error_code ec, std::size_t bytes_recvd)
                               {
                                  if (!ec && bytes_recvd > 0) {
                                     std::string arrived(data_, bytes_recvd);
                                     LOG(INFO) << "Got data: " << arrived;
                                     listener.handleIncomingData(arrived);
-                                 } else {
-                                    doReceive();
-                                 }
+                              }
+                              doReceive();
                               });
 }
