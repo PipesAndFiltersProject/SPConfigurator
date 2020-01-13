@@ -21,7 +21,8 @@ public:
 
    virtual void handleIncomingData(std::string data) override;
    virtual void handleError(std::string error) override;
-
+   void showMessage(const QString & message);
+   
 private slots:
    void on_searchButton_clicked();
 
