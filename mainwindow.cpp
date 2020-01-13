@@ -2,7 +2,7 @@
 
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-#include "spconfigurator.h"
+#include "SPConfigurator.h"
 
 MainWindow::MainWindow(QWidget *parent) :
    QMainWindow(parent),

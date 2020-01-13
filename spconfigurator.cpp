@@ -1,12 +1,14 @@
 #include <nlohmann/json.hpp>
 #include <g3log/g3log.hpp>
 
+#include <OHARBaseLayer/Package.h>
+
 #include "SPConfigurator.h"
 #include "SPConfiguratorListener.h"
 
-SPConfigurator::SPConfigurator(SPConfiguratorListener & l, int broadcastPort)
+SPConfigurator::SPConfigurator(SPConfiguratorListener & l, int castPort)
    : listener(l), broadcasterSocket(io_service),
-     this->broadcastPort(broadcastPort), isRunning(false), isSearching(false) {
+     broadcastPort(castPort), isRunning(false), isSearching(false) {
    LOG(INFO) << "Created SPConfigurator.";
 }
 
@@ -103,11 +105,11 @@ void SPConfigurator::stopSearchingForNodes() {
 
 // TODO: actually call doReceive to receive responses. Store them for each node (by node name), std::map perhaps?
 void SPConfigurator::doReceive() {
-   broadcasterSocket.async_receive_from(boost::asio::buffer(data_, max_length), sender_endpoint_,
+   broadcasterSocket.async_receive_from(boost::asio::buffer(data, max_length), sender_endpoint_,
                               [this](boost::system::error_code ec, std::size_t bytes_recvd)
                               {
                                  if (!ec && bytes_recvd > 0) {
-                                    std::string arrived(data_, bytes_recvd);
+                                    std::string arrived(data, bytes_recvd);
                                     LOG(INFO) << "Got data: " << arrived;
                                     handleIncomingConfig(sender_endpoint_.address().to_string(), arrived);
                               }
@@ -116,5 +118,19 @@ void SPConfigurator::doReceive() {
 }
 
 void SPConfigurator::handleIncomingConfig(std::string nodeAddress, std::string configData) {
-   listener.handleIncomingData(sender_endpoint_.address().to_string(), arrived);
+   nlohmann::json packageJSON = nlohmann::json::parse(configData);
+   OHARBase::Package p = packageJSON.get<OHARBase::Package>();
+   if (p.getType() == OHARBase::Package::Configuration) {
+      std::string payload = p.getPayloadString();
+      if (packageJSON.find("operation") != packageJSON.end()) {
+         std::string operation = packageJSON["operation"].get<std::string>();
+         if (operation == "info") {
+            nlohmann::json configs = packageJSON["items"];
+            NodeView view = configs.get<NodeView>();
+         }
+      }
+      
+   }
+
+//   listener.handleIncomingData(sender_endpoint_.address().to_string(), configData);
 }

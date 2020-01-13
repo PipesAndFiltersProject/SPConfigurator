@@ -3,12 +3,13 @@
 
 #include <QMainWindow>
 
-#include "spconfigurator.h"
+
 #include "SPConfiguratorListener.h"
 
 namespace Ui {
 class MainWindow;
 }
+class SPConfigurator;
 
 class MainWindow : public QMainWindow, public SPConfiguratorListener
 {

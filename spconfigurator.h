@@ -1,6 +1,8 @@
 #pragma once
 
 #include <string>
+#include <vector>
+
 #include <boost/bind.hpp>
 #include <boost/asio.hpp>
 
@@ -15,7 +17,7 @@ class SPConfiguratorListener;
 class SPConfigurator
 {
 public:
-   SPConfigurator(SPConfiguratorListener & l, int broadcastPort);
+   SPConfigurator(SPConfiguratorListener & l, int castPort);
 
    ~SPConfigurator();
 
@@ -44,8 +46,8 @@ private:
 
    boost::asio::ip::udp::endpoint sender_endpoint_;
    enum { max_length = 4096 };
-   char data_[max_length];
+   char data [max_length];
 
-   std:vector<NodeView> nodes;
+   std::vector<NodeView> nodes;
 };
 
