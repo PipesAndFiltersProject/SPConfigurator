@@ -27,6 +27,17 @@ void NodeView::setOutputAddrWithPort(const std::string & addr) {
    outputAddressWithPort = addr;
 }
 
+const std::string & NodeView::getName() const {
+   return nodeName;
+}
+
+const std::string & NodeView::getAddress() const {
+   return nodeAddress;
+}
+
+int NodeView::getInputPort() const {
+   return inputPort;
+}
 
 void to_json(nlohmann::json & j, const NodeView & node) {
    //TODO: implement

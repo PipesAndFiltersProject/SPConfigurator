@@ -1,3 +1,5 @@
+#include <sstream>
+
 #include <nlohmann/json.hpp>
 #include <g3log/g3log.hpp>
 
@@ -120,17 +122,30 @@ void SPConfigurator::doReceive() {
 void SPConfigurator::handleIncomingConfig(std::string nodeAddress, std::string configData) {
    nlohmann::json packageJSON = nlohmann::json::parse(configData);
    OHARBase::Package p = packageJSON.get<OHARBase::Package>();
+   LOG(INFO) << "Package arrived";
    if (p.getType() == OHARBase::Package::Configuration) {
+      LOG(INFO) << "It was configuration package!";
       std::string payload = p.getPayloadString();
-      if (packageJSON.find("operation") != packageJSON.end()) {
-         std::string operation = packageJSON["operation"].get<std::string>();
+      LOG(INFO) << "Payload: " << payload;
+      nlohmann::json payloadJSON = nlohmann::json::parse(payload);
+      if (payloadJSON.find("operation") != payloadJSON.end()) {
+         std::string operation = payloadJSON["operation"].get<std::string>();
+         LOG(INFO) << "Operation was found: " << operation;
          if (operation == "info") {
-            nlohmann::json configs = packageJSON["items"];
+            nlohmann::json configs = payloadJSON["items"];
             NodeView view = configs.get<NodeView>();
+            view.setAddress(nodeAddress);
+            std::stringstream sstream;
+            sstream << "Node found: " << view.getName() << " at " << view.getAddress() << ":" << view.getInputPort();
+            std::string message = sstream.str();
+            listener.handleIncomingData(message);
+         } else {
+            LOG(INFO) << "No info operation, ignoring";
          }
+      } else {
+         LOG(INFO) << "No operation element in JSON";
       }
-      
+   } else {
+      LOG(INFO) << "This was not a configuration package, ignored";
    }
-
-//   listener.handleIncomingData(sender_endpoint_.address().to_string(), configData);
 }

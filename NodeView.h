@@ -25,13 +25,16 @@ public:
    void setConfigPort(int port);
    void setOutputAddrWithPort(const std::string & addr);
    
+   const std::string & getName() const;
+   const std::string & getAddress() const;
+   int getInputPort() const;
+   
 private:
    std::string nodeName;
    std::string nodeAddress;
    int         inputPort;
    int         configPort;
    std::string outputAddressWithPort;
-   NodeView * nextNode = nullptr;
 };
 
 void to_json(nlohmann::json & j, const NodeView & node);
