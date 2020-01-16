@@ -4,24 +4,26 @@
 #include "ui_mainwindow.h"
 #include "SPConfigurator.h"
 
+static const int DEFAULT_PORT = 10'001;
+
 MainWindow::MainWindow(QWidget *parent) :
    QMainWindow(parent),
    ui(new Ui::MainWindow), configurator(nullptr)
 {
    LOG(INFO) << "Configurator main window setup starts";
    ui->setupUi(this);
-   int broadcastPortNumber = 10000;
+   int broadcastPortNumber = DEFAULT_PORT;
    if (QApplication::arguments().count() > 1) {
       QString portStr = QApplication::arguments().at(1);
       bool success;
       broadcastPortNumber = portStr.toInt(&success);
       if (!success) {
          showMessage("Startup parameter broadcast port was wrong!");
-         broadcastPortNumber = 10000;
+         broadcastPortNumber = DEFAULT_PORT;
       }
    }
    showMessage("Using port " + QString::number(broadcastPortNumber) + " as broadcast port.");
-   configurator = new SPConfigurator(*this, 10001);
+   configurator = new SPConfigurator(*this, broadcastPortNumber);
    configurator->init();
    LOG(INFO) << "Configurator main window created";
 }
@@ -38,12 +40,12 @@ MainWindow::~MainWindow()
 
 void MainWindow::handleIncomingData(std::string message) {
    QString logEntry = QString::fromStdString(message);
-   ui->LogView->appendPlainText(logEntry);
+   showMessage(logEntry);
 }
 
 void MainWindow::handleError(std::string error) {
    QString logEntry = QString::fromStdString(error);
-   ui->LogView->appendPlainText(logEntry);
+   showMessage(logEntry);
 }
 
 

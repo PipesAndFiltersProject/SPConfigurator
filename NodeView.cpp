@@ -1,12 +1,52 @@
+
+#include <utility>
+
+#include <g3log/g3log.hpp>
+
 #include "NodeView.h"
 
-//TODO:
-// 0. take Node IP address from received data, save as node info
-// 1. receive data, parse from JSON > Package
-// 2. get payload, parse from JSON > NodeConfiguration
-// 3. add visual data members to class, like x/y coords etc.
-// 4. Draw.
+NodeView::NodeView()
+: nodeName("[Unknown]"), nodeAddress("[Unknown]"), inputPort(0), configPort(0), outputAddressWithPort("[Unknown]")
+{
 
+}
+
+NodeView::NodeView(const NodeView & v)
+: nodeName(v.nodeName), nodeAddress(v.nodeAddress), inputPort(v.inputPort), configPort(v.configPort), outputAddressWithPort(v.outputAddressWithPort)
+{
+   
+}
+
+NodeView::NodeView(NodeView && v)
+: nodeName(std::exchange(v.nodeName, "")), nodeAddress(std::exchange(v.nodeAddress,"")), inputPort(std::exchange(v.inputPort, 0)), configPort(std::exchange(v.configPort,0)), outputAddressWithPort(std::exchange(v.outputAddressWithPort, ""))
+{
+}
+
+NodeView & NodeView::operator =(const NodeView & v) {
+   if (this != &v) {
+      nodeName = v.nodeName;
+      nodeAddress = v.nodeAddress;
+      inputPort = v.inputPort;
+      configPort = v.configPort;
+      outputAddressWithPort = v.outputAddressWithPort;
+   }
+   return *this;
+}
+
+NodeView & NodeView::operator =(NodeView && v) {
+   if (this != &v) {
+      nodeName = std::exchange(v.nodeName, "");
+      nodeAddress = std::exchange(v.nodeAddress,"");
+      inputPort = std::exchange(v.inputPort, 0);
+      configPort = std::exchange(v.configPort,0);
+      outputAddressWithPort = std::exchange(v.outputAddressWithPort, "");
+   }
+   return *this;
+}
+
+bool NodeView::operator == (const NodeView & v) const {
+   return nodeName == v.nodeName;
+}
 
 void NodeView::setName(const std::string & name) {
    nodeName = name;
@@ -44,15 +84,16 @@ void to_json(nlohmann::json & j, const NodeView & node) {
 }
 
 void from_json(const nlohmann::json & j, NodeView & node) {
-   for (auto& [key, value] : j.items()) {
-      if (key == "name") {
-         node.setName(value.get<std::string>());
-      } else if (key == "input") {
-         node.setInputPort(value.get<int>());
-      } else if (key == "config") {
-         node.setConfigPort(value.get<int>());
-      } else if (key == "output") {
-         node.setOutputAddrWithPort(value.get<std::string>());
+   for (auto& [index, element] : j.items()) {
+      if (element.contains("name")) {
+         node.setName(element.value("name", "[Unnamed]"));
+      } else if (element.contains("input")) {
+         std::string port = element.value("input", "0");
+         node.setInputPort(std::stoi(port));
+      } else if (element.contains("config")) {
+         node.setConfigPort(std::stoi(element.value("config", "0")));
+      } else if (element.contains("output")) {
+         node.setOutputAddrWithPort(element.value("output", "[Unknown]"));
       } else {
          // nada
       }

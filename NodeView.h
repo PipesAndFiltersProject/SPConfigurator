@@ -13,9 +13,12 @@
  */
 class NodeView {
 public:
-   NodeView() = default;
-   NodeView(const NodeView &) = default;
-   NodeView & operator =(const NodeView &) = default;
+   NodeView();
+   NodeView(const NodeView & v);
+   NodeView(NodeView && v);
+   NodeView & operator = (const NodeView & v);
+   NodeView & operator = (NodeView && v);
+   bool operator == (const NodeView & v) const;
    virtual ~NodeView() = default;
    
    

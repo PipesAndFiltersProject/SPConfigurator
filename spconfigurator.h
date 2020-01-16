@@ -32,6 +32,7 @@ private:
    void doReceive();
 
    void handleIncomingConfig(std::string nodeAddress, std::string configData);
+   void addOrUpdateNodeView(NodeView & view);
    
 private:
    SPConfiguratorListener & listener;

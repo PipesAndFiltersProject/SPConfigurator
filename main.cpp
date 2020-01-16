@@ -10,7 +10,7 @@
 int main(int argc, char *argv[])
 {
    if (argc < 2) {
-      std::cout << "Broadcast port number not specified, using port 10000." << std::endl;
+      std::cout << "Broadcast port number not specified, using default port." << std::endl;
    }
    std::unique_ptr<g3::LogWorker> logworker{ g3::LogWorker::createLogWorker() };
    QString logDir = QDir::homePath() + "/StudentPassing/Logs";

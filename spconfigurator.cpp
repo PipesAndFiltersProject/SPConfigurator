@@ -58,10 +58,11 @@ void SPConfigurator::startSearchingForNodes() {
    if (!isSearching)
    {
       LOG(INFO) << "Starting to search for nodes using broadcast socket";
-
+      nodes.clear();
       searchThread = std::thread([this] {
          try {
-            // TODO: create package with search payload so that uuid changes when new search is started with new uuid.
+            // TODO: create Package with search payload so that uuid changes when new search is started with new uuid.
+            // Nodes can then reply to first search package with the uuid, and ignore other identical search package uuids.
             const nlohmann::json searchJSON = R"(
                                            { "package" : "123e4567-e89b-12d3-a456-426655440000",
                                              "type" : "configuration",
@@ -120,32 +121,55 @@ void SPConfigurator::doReceive() {
 }
 
 void SPConfigurator::handleIncomingConfig(std::string nodeAddress, std::string configData) {
-   nlohmann::json packageJSON = nlohmann::json::parse(configData);
-   OHARBase::Package p = packageJSON.get<OHARBase::Package>();
-   LOG(INFO) << "Package arrived";
-   if (p.getType() == OHARBase::Package::Configuration) {
-      LOG(INFO) << "It was configuration package!";
-      std::string payload = p.getPayloadString();
-      LOG(INFO) << "Payload: " << payload;
-      nlohmann::json payloadJSON = nlohmann::json::parse(payload);
-      if (payloadJSON.find("operation") != payloadJSON.end()) {
-         std::string operation = payloadJSON["operation"].get<std::string>();
-         LOG(INFO) << "Operation was found: " << operation;
-         if (operation == "info") {
-            nlohmann::json configs = payloadJSON["items"];
-            NodeView view = configs.get<NodeView>();
-            view.setAddress(nodeAddress);
-            std::stringstream sstream;
-            sstream << "Node found: " << view.getName() << " at " << view.getAddress() << ":" << view.getInputPort();
-            std::string message = sstream.str();
-            listener.handleIncomingData(message);
+   try {
+      nlohmann::json packageJSON = nlohmann::json::parse(configData);
+      OHARBase::Package p = packageJSON.get<OHARBase::Package>();
+      LOG(INFO) << "Package arrived";
+      if (p.getType() == OHARBase::Package::Configuration) {
+         LOG(INFO) << "It was configuration package!";
+         std::string payload = p.getPayloadString();
+         LOG(INFO) << "Payload: " << payload;
+         nlohmann::json payloadJSON = nlohmann::json::parse(payload);
+         if (payloadJSON.find("operation") != payloadJSON.end()) {
+            std::string operation = payloadJSON["operation"].get<std::string>();
+            LOG(INFO) << "Operation was found: " << operation;
+            if (operation == "info") {
+               nlohmann::json configs = payloadJSON["configitems"];
+               NodeView view = configs.get<NodeView>();
+               view.setAddress(nodeAddress);
+               addOrUpdateNodeView(view);
+               std::stringstream sstream;
+               sstream << "Node found: " << view.getName() << " at " << view.getAddress() << ":" << view.getInputPort();
+               std::string message = sstream.str();
+               listener.handleIncomingData(message);
+            } else {
+               LOG(INFO) << "No info operation, ignoring";
+            }
          } else {
-            LOG(INFO) << "No info operation, ignoring";
+            LOG(INFO) << "No operation element in JSON";
          }
       } else {
-         LOG(INFO) << "No operation element in JSON";
+         LOG(INFO) << "This was not a configuration package, ignored";
       }
-   } else {
-      LOG(INFO) << "This was not a configuration package, ignored";
+   } catch (std::exception e) {
+      std::stringstream sstream;
+      sstream << "Error in incoming data handling: " << e.what();
+      LOG(INFO) << sstream.str();
+      listener.handleError(sstream.str());
    }
+}
+
+void SPConfigurator::addOrUpdateNodeView(NodeView & view) {
+   // Try to find if we already got information about this node.
+   std::vector<NodeView>::iterator iter = std::find(std::begin(nodes), std::end(nodes), view);
+   // Yes, just update it just in case something changed at the remote node.
+   if (iter != nodes.end()) {
+      *iter = view;
+   // Otherwise, it was a new node, so store it.
+   } else {
+      nodes.push_back(view);
+   }
+   std::stringstream sstream;
+   sstream << "System has " << nodes.size() << " nodes";
+   listener.handleIncomingData(sstream.str());
 }
