@@ -41,8 +41,8 @@ find_package(Qt5Widgets CONFIG REQUIRED)
 find_package(Qt5Core CONFIG REQUIRED)
 find_package(Qt5Gui CONFIG REQUIRED)
 
-find_package(OHARBaseLayer REQUIRED)
+find_package(ProcessorNode REQUIRED)
 
-target_include_directories(${BIN_NAME} PRIVATE ${Boost_INCLUDE_DIRS} ${G3LOG_INCLUDE_DIRS} ${Qt5Widgets_INCLUDE_DIRS} ${Qt5Core_INCLUDE_DIRS} ${Qt5Gui_INCLUDE_DIRS} ${OHARBaseLayer_INCLUDE_DIRS})
+target_include_directories(${BIN_NAME} PRIVATE ${Boost_INCLUDE_DIRS} ${G3LOG_INCLUDE_DIRS} ${Qt5Widgets_INCLUDE_DIRS} ${Qt5Core_INCLUDE_DIRS} ${Qt5Gui_INCLUDE_DIRS} ${ProcessorNode_INCLUDE_DIRS})
 
-target_link_libraries(${BIN_NAME} Qt5::Core Qt5::Gui Qt5::Widgets Boost::system g3logger OHARBaseLayer::OHARBaseLayer)
+target_link_libraries(${BIN_NAME} Qt5::Core Qt5::Gui Qt5::Widgets Boost::system g3logger ProcessorNode::ProcessorNode)

@@ -3,7 +3,7 @@
 #include <nlohmann/json.hpp>
 #include <g3log/g3log.hpp>
 
-#include <OHARBaseLayer/Package.h>
+#include <ProcessorNode/Package.h>
 
 #include "SPConfigurator.h"
 #include "SPConfiguratorListener.h"
