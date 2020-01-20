@@ -18,8 +18,9 @@ class SPConfigurator
 {
 public:
    SPConfigurator(SPConfiguratorListener & l, int castPort);
-
    ~SPConfigurator();
+
+   using NodeContainer = std::vector<NodeView>;
 
    void init();
    void deinit();
@@ -27,6 +28,8 @@ public:
    void startSearchingForNodes();
    void stopSearchingForNodes();
    bool isSearchingNodes() const;
+   const NodeContainer & getNodes() const;
+   
 
 private:
    void doReceive();
@@ -49,6 +52,6 @@ private:
    enum { max_length = 4096 };
    char data [max_length];
 
-   std::vector<NodeView> nodes;
+   NodeContainer nodes;
 };
 

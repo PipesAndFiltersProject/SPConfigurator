@@ -91,6 +91,10 @@ void SPConfigurator::startSearchingForNodes() {
    }
 }
 
+const std::vector<NodeView> & SPConfigurator::getNodes() const {
+   return nodes;
+}
+
 void SPConfigurator::stopSearchingForNodes() {
    if (isSearching) {
       try {
@@ -141,7 +145,6 @@ void SPConfigurator::handleIncomingConfig(std::string nodeAddress, std::string c
                std::stringstream sstream;
                sstream << "Node found: " << view.getName() << " at " << view.getAddress() << ":" << view.getInputPort();
                std::string message = sstream.str();
-               listener.handleIncomingData(message);
             } else {
                LOG(INFO) << "No info operation, ignoring";
             }
@@ -161,13 +164,14 @@ void SPConfigurator::handleIncomingConfig(std::string nodeAddress, std::string c
 
 void SPConfigurator::addOrUpdateNodeView(NodeView & view) {
    // Try to find if we already got information about this node.
-   std::vector<NodeView>::iterator iter = std::find(std::begin(nodes), std::end(nodes), view);
+   NodeContainer::iterator iter = std::find(std::begin(nodes), std::end(nodes), view);
    // Yes, just update it just in case something changed at the remote node.
    if (iter != nodes.end()) {
       *iter = view;
    // Otherwise, it was a new node, so store it.
    } else {
       nodes.push_back(view);
+      std::sort(nodes.begin(), nodes.end());
    }
    std::stringstream sstream;
    sstream << "System has " << nodes.size() << " nodes";

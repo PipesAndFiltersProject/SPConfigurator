@@ -41,6 +41,13 @@ MainWindow::~MainWindow()
 void MainWindow::handleIncomingData(std::string message) {
    QString logEntry = QString::fromStdString(message);
    showMessage(logEntry);
+   SPConfigurator::NodeContainer nodes = configurator->getNodes();
+   ui->LogView->clear();
+   std::for_each(std::begin(nodes), std::end(nodes), [this](const NodeView & node) {
+      std::string description = node.getInputAddressWithPort() + "\t" + node.getName() + "\t" + node.getOutputAddressWithPort();
+      QString logEntry = QString::fromStdString(description);
+      ui->LogView->appendPlainText(logEntry);
+   });
 }
 
 void MainWindow::handleError(std::string error) {
@@ -68,6 +75,6 @@ void MainWindow::showMessage(const QString & message)
 {
    // TODO: examine also event (notification, warning, error) and display each differently.
    if (message.length() > 0) {
-      ui->LogView->appendPlainText(message);
+      ui->statusbar->showMessage(message);
    }
 }

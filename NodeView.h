@@ -19,24 +19,28 @@ public:
    NodeView & operator = (const NodeView & v);
    NodeView & operator = (NodeView && v);
    bool operator == (const NodeView & v) const;
-   virtual ~NodeView() = default;
+   bool operator < (const NodeView & v) const;
    
+   virtual ~NodeView() = default;
    
    void setName(const std::string & name);
    void setAddress(const std::string & addr);
-   void setInputPort(int port);
-   void setConfigPort(int port);
+   void setInputPort(const std::string & port);
+   void setConfigPort(const std::string & port);
    void setOutputAddrWithPort(const std::string & addr);
    
    const std::string & getName() const;
    const std::string & getAddress() const;
-   int getInputPort() const;
+   const std::string & getInputPort() const;
+   const std::string & getOutputAddressWithPort() const;
    
+   std::string getInputAddressWithPort() const;
+
 private:
    std::string nodeName;
    std::string nodeAddress;
-   int         inputPort;
-   int         configPort;
+   std::string inputPort;
+   std::string configPort;
    std::string outputAddressWithPort;
 };
 
