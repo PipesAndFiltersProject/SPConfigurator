@@ -37,16 +37,6 @@
      <string>&amp;Start searching</string>
     </property>
    </widget>
-   <widget class="QWidget" name="nodeGraphWidget" native="true">
-    <property name="geometry">
-     <rect>
-      <x>0</x>
-      <y>0</y>
-      <width>641</width>
-      <height>241</height>
-     </rect>
-    </property>
-   </widget>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
  </widget>
