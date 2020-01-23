@@ -11,6 +11,8 @@ class MainWindow;
 }
 class SPConfigurator;
 
+Q_DECLARE_METATYPE(QString)
+
 class MainWindow : public QMainWindow, public SPConfiguratorListener
 {
    Q_OBJECT
@@ -21,11 +23,20 @@ public:
 
    virtual void handleIncomingData(std::string data) override;
    virtual void handleError(std::string error) override;
+   
+private:
+
    void showMessage(const QString & message);
    
+signals:
+   void incomingDataSignal(QString data);
+   void errorSignal(QString error);
+   
 private slots:
-   void on_searchButton_clicked();
-
+   void onSearchButtonClicked();
+   void doHandleIncomingData(QString data);
+   void doHandleError(QString error);
+   
 private:
    Ui::MainWindow *ui;
 
