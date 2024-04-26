@@ -20,7 +20,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 INCLUDEPATH += /usr/local/include
 DEPENDPATH += /usr/local/lib
 
-LIBS += -L"/usr/local/lib" -lboost_system -L"/usr/local/lib" -lOHARBaseLayer -L"/usr/local/lib" -lg3logger
+LIBS += -L"/usr/local/lib" -lboost_system -L"/usr/local/lib" -lProcessorNode -L"/usr/local/lib" -lg3logger
 
 # You can also make your code fail to compile if you use deprecated APIs.
 # In order to do so, uncomment the following line.
