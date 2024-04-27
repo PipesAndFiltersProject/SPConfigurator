@@ -68,6 +68,6 @@ find_package(Qt6Gui CONFIG REQUIRED)
 
 find_package(ProcessorNode REQUIRED)
 
-target_include_directories(${BIN_NAME} PRIVATE ${Boost_INCLUDE_DIRS} ${G3LOG_INCLUDE_DIRS} ${Qt5Widgets_INCLUDE_DIRS} ${Qt5Core_INCLUDE_DIRS} ${Qt5Gui_INCLUDE_DIRS} ${ProcessorNode_INCLUDE_DIRS})
+target_include_directories(${BIN_NAME} PRIVATE ${Boost_INCLUDE_DIRS} ${G3LOGGER_INCLUDE_DIRS} ${Qt5Widgets_INCLUDE_DIRS} ${Qt5Core_INCLUDE_DIRS} ${Qt5Gui_INCLUDE_DIRS} ${ProcessorNode_INCLUDE_DIRS})
 
 target_link_libraries(${BIN_NAME} Qt6::Core Qt6::Gui Qt6::Widgets Boost::system g3log ProcessorNode::ProcessorNode)
